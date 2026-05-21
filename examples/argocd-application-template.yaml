@@ -18,7 +18,6 @@ spec:
             loft:
               project: "{{ .Values.loft.project }}"
               virtualClusterName: "{{ .Values.loft.virtualClusterName }}"
-              space: "{{ .Values.loft.space }}"
       destination:
         namespace: argocd
       syncPolicy:
