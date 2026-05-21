@@ -1,0 +1,33 @@
+data:
+  resource.customizations.health.management.loft.sh_ArgoCDApplication: |
+    hs = {}
+    hs.status = "Progressing"
+    hs.message = "Waiting for ArgoCDApplication status"
+
+    if obj.status ~= nil and obj.status.application ~= nil then
+      local app = obj.status.application
+      local health = "Unknown"
+      local sync = "Unknown"
+      if app.health ~= nil and app.health.status ~= nil then
+        health = app.health.status
+      end
+      if app.sync ~= nil and app.sync.status ~= nil then
+        sync = app.sync.status
+      end
+
+      if health == "Healthy" and sync == "Synced" then
+        hs.status = "Healthy"
+        hs.message = "Application healthy and synced"
+      elseif health == "Degraded" then
+        hs.status = "Degraded"
+        hs.message = "Application degraded"
+      elseif health == "Missing" then
+        hs.status = "Missing"
+        hs.message = "Application resources missing"
+      else
+        hs.status = "Progressing"
+        hs.message = "health=" .. health .. " sync=" .. sync
+      end
+    end
+
+    return hs
