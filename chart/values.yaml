@@ -1,6 +1,7 @@
 loft:
   project: ""
   virtualClusterName: ""
+  space: ""
 
 argoCDProject: default
 

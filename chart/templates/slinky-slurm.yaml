@@ -1,45 +1,49 @@
-apiVersion: argoproj.io/v1alpha1
-kind: Application
+apiVersion: management.loft.sh/v1
+kind: ArgoCDApplication
 metadata:
   name: {{ include "slinky.namePrefix" . }}-slurm
-  namespace: argocd
+  namespace: {{ .Values.loft.space }}
   annotations:
     argocd.argoproj.io/sync-wave: "-10"
 spec:
-  project: {{ .Values.argoCDProject }}
   destination:
-    name: {{ include "slinky.destClusterName" . }}
-    namespace: {{ .Values.slurm.namespace }}
-  source:
-    repoURL: ghcr.io/slinkyproject/charts
-    chart: slurm
-    targetRevision: {{ .Values.slurm.version }}
-    helm:
-      releaseName: slurm
-      valuesObject:
-        clusterName: {{ .Values.slurm.clusterName }}
-        controller:
-          persistence:
-            enabled: {{ .Values.slurm.controller.persistence.enabled }}
-        accounting:
-          enabled: {{ .Values.slurm.accountingEnabled }}
-        loginsets:
-          slinky:
-            enabled: true
-        nodesets:
-          slinky:
-            replicas: {{ .Values.slurm.nodeset.replicas }}
-            scalingMode: StatefulSet
-            updateStrategy:
-              type: RollingUpdate
-              rollingUpdate:
-                maxUnavailable: 1
-        restapi:
-          replicas: {{ .Values.slurm.restapi.replicas }}
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - SkipDryRunOnMissingResource=true
+    virtualCluster:
+      name: {{ .Values.loft.virtualClusterName }}
+      target: vCluster
+      namespace: {{ .Values.slurm.namespace }}
+  template:
+    spec:
+      project: {{ .Values.argoCDProject }}
+      source:
+        repoURL: ghcr.io/slinkyproject/charts
+        chart: slurm
+        targetRevision: {{ .Values.slurm.version }}
+        helm:
+          releaseName: slurm
+          valuesObject:
+            clusterName: {{ .Values.slurm.clusterName }}
+            controller:
+              persistence:
+                enabled: {{ .Values.slurm.controller.persistence.enabled }}
+            accounting:
+              enabled: {{ .Values.slurm.accountingEnabled }}
+            loginsets:
+              slinky:
+                enabled: true
+            nodesets:
+              slinky:
+                replicas: {{ .Values.slurm.nodeset.replicas }}
+                scalingMode: StatefulSet
+                updateStrategy:
+                  type: RollingUpdate
+                  rollingUpdate:
+                    maxUnavailable: 1
+            restapi:
+              replicas: {{ .Values.slurm.restapi.replicas }}
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - SkipDryRunOnMissingResource=true

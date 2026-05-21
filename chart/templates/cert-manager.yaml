@@ -1,27 +1,31 @@
-apiVersion: argoproj.io/v1alpha1
-kind: Application
+apiVersion: management.loft.sh/v1
+kind: ArgoCDApplication
 metadata:
   name: {{ include "slinky.namePrefix" . }}-cert-manager
-  namespace: argocd
+  namespace: {{ .Values.loft.space }}
   annotations:
     argocd.argoproj.io/sync-wave: "-30"
 spec:
-  project: {{ .Values.argoCDProject }}
   destination:
-    name: {{ include "slinky.destClusterName" . }}
-    namespace: {{ .Values.certManager.namespace }}
-  source:
-    repoURL: https://charts.jetstack.io
-    chart: cert-manager
-    targetRevision: {{ .Values.certManager.version }}
-    helm:
-      releaseName: cert-manager
-      valuesObject:
-        crds:
-          enabled: true
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+    virtualCluster:
+      name: {{ .Values.loft.virtualClusterName }}
+      target: vCluster
+      namespace: {{ .Values.certManager.namespace }}
+  template:
+    spec:
+      project: {{ .Values.argoCDProject }}
+      source:
+        repoURL: https://charts.jetstack.io
+        chart: cert-manager
+        targetRevision: {{ .Values.certManager.version }}
+        helm:
+          releaseName: cert-manager
+          valuesObject:
+            crds:
+              enabled: true
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
