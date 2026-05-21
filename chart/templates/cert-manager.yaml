@@ -1,19 +1,19 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: cert-manager
+  name: {{ include "slinky.namePrefix" . }}-cert-manager
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "-30"
 spec:
-  project: default
+  project: {{ .Values.argoCDProject }}
   destination:
-    server: https://kubernetes.default.svc
-    namespace: cert-manager
+    name: {{ include "slinky.destClusterName" . }}
+    namespace: {{ .Values.certManager.namespace }}
   source:
     repoURL: https://charts.jetstack.io
     chart: cert-manager
-    targetRevision: v1.20.2
+    targetRevision: {{ .Values.certManager.version }}
     helm:
       releaseName: cert-manager
       valuesObject:

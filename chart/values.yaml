@@ -1,0 +1,26 @@
+loft:
+  project: ""
+  virtualClusterName: ""
+
+argoCDProject: default
+
+certManager:
+  version: v1.20.2
+  namespace: cert-manager
+
+slinkyOperator:
+  version: 1.1.0
+  namespace: slinky
+
+slurm:
+  version: 1.1.0
+  namespace: slurm
+  clusterName: slurm
+  accountingEnabled: false
+  controller:
+    persistence:
+      enabled: true
+  nodeset:
+    replicas: 3
+  restapi:
+    replicas: 1

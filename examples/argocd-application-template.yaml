@@ -1,0 +1,28 @@
+apiVersion: management.loft.sh/v1
+kind: ArgoCDApplicationTemplate
+metadata:
+  name: slinky
+spec:
+  template:
+    metadata:
+      name: "slinky-{{ .Values.loft.project }}-{{ .Values.loft.virtualClusterName }}"
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/pascalbreuninger/slinky-argo
+        targetRevision: main
+        path: chart
+        helm:
+          releaseName: slinky
+          valuesObject:
+            loft:
+              project: "{{ .Values.loft.project }}"
+              virtualClusterName: "{{ .Values.loft.virtualClusterName }}"
+      destination:
+        namespace: argocd
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

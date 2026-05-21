@@ -1,19 +1,19 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: slinky-operator
+  name: {{ include "slinky.namePrefix" . }}-slurm-operator
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "-20"
 spec:
-  project: default
+  project: {{ .Values.argoCDProject }}
   destination:
-    server: https://kubernetes.default.svc
-    namespace: slinky
+    name: {{ include "slinky.destClusterName" . }}
+    namespace: {{ .Values.slinkyOperator.namespace }}
   source:
     repoURL: ghcr.io/slinkyproject/charts
     chart: slurm-operator
-    targetRevision: 1.1.0
+    targetRevision: {{ .Values.slinkyOperator.version }}
     helm:
       releaseName: slurm-operator
       valuesObject:

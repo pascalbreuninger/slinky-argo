@@ -1,0 +1,13 @@
+integrations:
+  argoCD:
+    connector: my-argocd
+
+deploy:
+  argoCD:
+    applications:
+      - name: slinky
+        templateRef:
+          name: slinky
+        destination:
+          virtualCluster:
+            target: host
