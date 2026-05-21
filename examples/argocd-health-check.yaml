@@ -8,16 +8,21 @@ data:
       local app = obj.status.application
       local health = "Unknown"
       local sync = "Unknown"
+      local opPhase = "Unknown"
+
       if app.health ~= nil and app.health.status ~= nil then
         health = app.health.status
       end
       if app.sync ~= nil and app.sync.status ~= nil then
         sync = app.sync.status
       end
+      if app.operationState ~= nil and app.operationState.phase ~= nil then
+        opPhase = app.operationState.phase
+      end
 
-      if health == "Healthy" and sync == "Synced" then
+      if health == "Healthy" and sync == "Synced" and opPhase == "Succeeded" then
         hs.status = "Healthy"
-        hs.message = "Application healthy and synced"
+        hs.message = "Application healthy, synced, operation succeeded"
       elseif health == "Degraded" then
         hs.status = "Degraded"
         hs.message = "Application degraded"
@@ -26,7 +31,7 @@ data:
         hs.message = "Application resources missing"
       else
         hs.status = "Progressing"
-        hs.message = "health=" .. health .. " sync=" .. sync
+        hs.message = "health=" .. health .. " sync=" .. sync .. " op=" .. opPhase
       end
     end
 
