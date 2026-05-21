@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: slinky-slurm
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: slurm
+  source:
+    repoURL: ghcr.io/slinkyproject/charts
+    chart: slurm
+    targetRevision: 1.1.0
+    helm:
+      releaseName: slurm
+      valuesObject:
+        clusterName: slurm
+        controller:
+          persistence:
+            enabled: true
+        accounting:
+          enabled: false
+        loginsets:
+          slinky:
+            enabled: true
+        nodesets:
+          slinky:
+            replicas: 3
+            scalingMode: StatefulSet
+            updateStrategy:
+              type: RollingUpdate
+              rollingUpdate:
+                maxUnavailable: 1
+        restapi:
+          replicas: 1
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - SkipDryRunOnMissingResource=true
